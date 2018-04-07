@@ -13,6 +13,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
     using System.Windows.Controls;
     using System;
     using System.Threading;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -525,11 +526,11 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             if (maxX > 3 || maxY > 3)
             {
                 isSheck = false;
-                (this.FindName("leftCenterY_ss") as TextBlock).Text = "滑动了";
+                //(this.FindName("leftCenterY_ss") as TextBlock).Text = "滑动了";
             }
             else
             {
-                (this.FindName("leftCenterY") as TextBlock).Text = "抖动";
+                //(this.FindName("leftCenterY") as TextBlock).Text = "抖动";
                 isSheck = true;
             }
 
@@ -609,6 +610,35 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 MoveY = handRight.Y;
                 MoveX = handRight.X;
             }
+
+            // 右手位置判断
+            string location = (this.FindName("rightAndCenter") as TextBlock).Text;
+            string res = location.Substring(location.LastIndexOf('=')+1);
+            int number = 0;
+            if (int.TryParse(res, out number))
+            {
+                number = Math.Abs(number);
+                if (number >= 90 && number <= 120)
+                {
+                    (this.FindName("rightCenterY_angle") as TextBlock).Text = "90角";
+                    PlayMp3();
+                }
+                if (number >= 150 && number <= 180)
+                {
+                    (this.FindName("rightCenterY_angle") as TextBlock).Text = "45角";
+                }
+
+                if (number >= 270 && number <= 310)
+                {
+                    (this.FindName("rightCenterY_angle") as TextBlock).Text = "0度";
+                }
+
+                if (number >= 360 && number <= 380)
+                {
+                    (this.FindName("rightCenterY_angle") as TextBlock).Text = "-45度";
+                }
+            }
+
             if (isKinectControl && leftCentZ < 0 && rightCenterZ < 0)
             {
                 function = "地图复位";
@@ -906,5 +936,23 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             }
         }
 
+        private List<string> mp3List = new List<string>() {"mp3\\45.mp3","mp3\\90.mp3"  } ;
+        bool isplaying = false;
+        private void PlayMp3()
+        {
+            if (!isplaying)
+            {
+                int i = new Random().Next(0,1);
+                medMain.Source = new Uri(System.AppDomain.CurrentDomain.BaseDirectory + mp3List[i]);
+                medMain.Play();
+
+                isplaying = true;
+            }
+        }
+
+        private void medMain_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            isplaying = false;
+        }
     }
 }
