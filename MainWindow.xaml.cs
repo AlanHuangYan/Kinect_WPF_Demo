@@ -525,11 +525,11 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             if (maxX > 3 || maxY > 3)
             {
                 isSheck = false;
-                //(this.FindName("leftCenterY") as TextBlock).Text = "滑动了";
+                (this.FindName("leftCenterY_ss") as TextBlock).Text = "滑动了";
             }
             else
             {
-                //(this.FindName("leftCenterY") as TextBlock).Text = "抖动";
+                (this.FindName("leftCenterY") as TextBlock).Text = "抖动";
                 isSheck = true;
             }
 
@@ -747,7 +747,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             using (DrawingContext dc = this.drawingGroup.Open())
             {
                 // Draw a transparent background to set the render size
-                dc.DrawRectangle(Brushes.Black, null, new Rect(0.0, 0.0, RenderWidth, RenderHeight));
+                dc.DrawRectangle(Brushes.Transparent, null, new Rect(0.0, 0.0, RenderWidth, RenderHeight));
 
                 if (skeletons.Length != 0)
                 {
