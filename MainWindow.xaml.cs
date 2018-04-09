@@ -21,6 +21,21 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
     public partial class MainWindow : Window
     {
         #region 成员
+        public enum HandLocation
+        {
+            Init = 0,
+            Left90 = 1,
+            Left45 = 2,
+            Left0 = 4,
+            Left45n = 8,
+            Left90n = 16,
+            Right90 = 32,
+            Right45 = 64,
+            Right0 = 128,
+            Right45n = 256,
+            Right90n = 512,
+        }
+
         //体感设备
         private KinectSensor kinectDriver;
         //骨架数据
@@ -36,6 +51,8 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         Vector4 handRight2;
 
         Timer KinectTimer;
+
+        public Dictionary<int, string> _mp3List = new Dictionary<int, string>();
 
         #endregion 成员
 
@@ -110,6 +127,46 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         public MainWindow()
         {
             InitializeComponent();
+
+            Init();
+        }
+
+        private void Init()
+        {
+            string path = $"{System.AppDomain.CurrentDomain.BaseDirectory}mp3\\";
+
+            _mp3List.Add(1, "Recording01.mp3");
+            _mp3List.Add(2, "Recording02.mp3");
+            _mp3List.Add(4, "Recording03.mp3");
+            _mp3List.Add(8, "Recording04.mp3");
+            _mp3List.Add(16, "Recording05.mp3");
+            _mp3List.Add(32, "Recording06.mp3");
+            _mp3List.Add(64, "Recording07.mp3");
+            _mp3List.Add(128, "Recording08.mp3");
+            _mp3List.Add(256, "Recording09.mp3");
+            _mp3List.Add(512, "Recording10.mp3");
+            _mp3List.Add(33, "Recording11.mp3");
+            _mp3List.Add(65, "Recording12.mp3");
+            _mp3List.Add(129, "Recording13.mp3");
+            _mp3List.Add(257, "Recording14.mp3");
+            _mp3List.Add(513, "Recording15.mp3");
+            _mp3List.Add(34, "Recording16.mp3");
+            _mp3List.Add(66, "Recording17.mp3");
+            _mp3List.Add(130, "Recording18.mp3");
+            _mp3List.Add(258, "Recording19.mp3");
+            _mp3List.Add(514, "Recording20.mp3");
+            _mp3List.Add(40, "Recording21.mp3");
+            _mp3List.Add(72, "Recording22.mp3");
+            _mp3List.Add(136, "Recording23.mp3");
+            _mp3List.Add(264, "Recording24.mp3");
+            _mp3List.Add(520, "Recording25.mp3");
+            _mp3List.Add(48, "Recording11.mp3");
+            _mp3List.Add(80, "Recording12.mp3");
+            _mp3List.Add(144, "Recording13.mp3");
+            _mp3List.Add(272, "Recording14.mp3");
+            _mp3List.Add(528, "Recording15.mp3");
+            
+
         }
 
         /// <summary>
@@ -615,29 +672,81 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             string location = (this.FindName("rightAndCenter") as TextBlock).Text;
             string res = location.Substring(location.LastIndexOf('=')+1);
             int number = 0;
+
+            HandLocation handLocation = HandLocation.Init;
             if (int.TryParse(res, out number))
             {
-                number = Math.Abs(number);
-                if (number >= 90 && number <= 120)
+                //number = Math.Abs(number);
+                if (number >= 145 && number <= 165)
                 {
                     (this.FindName("rightCenterY_angle") as TextBlock).Text = "90角";
-                    PlayMp3();
+                    handLocation = handLocation | HandLocation.Right90;
                 }
-                if (number >= 150 && number <= 180)
+                if (number >= 100 && number <= 120)
                 {
                     (this.FindName("rightCenterY_angle") as TextBlock).Text = "45角";
+                    handLocation = handLocation | HandLocation.Right45;
                 }
 
-                if (number >= 270 && number <= 310)
+                if (number >= 30 && number <= 50)
                 {
                     (this.FindName("rightCenterY_angle") as TextBlock).Text = "0度";
+                    handLocation = handLocation | HandLocation.Right0;
                 }
 
-                if (number >= 360 && number <= 380)
+                if (number >= -45 && number <= -30)
                 {
                     (this.FindName("rightCenterY_angle") as TextBlock).Text = "-45度";
+                    handLocation = handLocation | HandLocation.Right45n;
+                }
+
+                if (number >= -70 && number <= -55)
+                {
+                    (this.FindName("rightCenterY_angle") as TextBlock).Text = "-90度";
+                    handLocation = handLocation | HandLocation.Right90n;
                 }
             }
+
+            // 左手位置判断
+            string leftlocation = (this.FindName("leftAndCenter") as TextBlock).Text;
+            string resleft = leftlocation.Substring(leftlocation.LastIndexOf('=') + 1);
+
+            number = 0;
+
+            if (int.TryParse(resleft, out number))
+            {
+                //number = Math.Abs(number);
+                if (number >= 145 && number <= 165)
+                {
+                    (this.FindName("leftCenterY_angle") as TextBlock).Text = "90角";
+                    handLocation = handLocation | HandLocation.Left90;
+                }
+                if (number >= 100 && number <= 120)
+                {
+                    (this.FindName("leftCenterY_angle") as TextBlock).Text = "45角";
+                    handLocation = handLocation | HandLocation.Left45;
+                }
+
+                if (number >= 30 && number <= 50)
+                {
+                    (this.FindName("leftCenterY_angle") as TextBlock).Text = "0度";
+                    handLocation = handLocation | HandLocation.Left0;
+                }
+
+                if (number >= -45 && number <= -30)
+                {
+                    (this.FindName("leftCenterY_angle") as TextBlock).Text = "-45度";
+                    handLocation = handLocation | HandLocation.Left45n;
+                }
+
+                if (number >= -70 && number <= -55)
+                {
+                    (this.FindName("leftCenterY_angle") as TextBlock).Text = "-90度";
+                    handLocation = handLocation | HandLocation.Left90n;
+                }
+            }
+
+            PlayMp3(handLocation);
 
             if (isKinectControl && leftCentZ < 0 && rightCenterZ < 0)
             {
@@ -936,22 +1045,36 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             }
         }
 
-        private List<string> mp3List = new List<string>() {"mp3\\45.mp3","mp3\\90.mp3"  } ;
+        //private List<string> mp3List = new List<string>() {"mp3\\45.mp3","mp3\\90.mp3"  } ;
         bool isplaying = false;
-        private void PlayMp3()
+        private void PlayMp3(HandLocation handlocation)
         {
             if (!isplaying)
             {
-                int i = new Random().Next(0,1);
-                medMain.Source = new Uri(System.AppDomain.CurrentDomain.BaseDirectory + mp3List[i]);
-                medMain.Play();
+                (this.FindName("mp3Number") as TextBlock).Text = "mp3: " + ((int)handlocation).ToString();
+                (this.FindName("mp3Status") as TextBlock).Text = "NULL";
+                if (_mp3List.ContainsKey(((int)handlocation)))
+                {
+                    (this.FindName("mp3Status") as TextBlock).Text = "Found";
 
-                isplaying = true;
+                    medMain.Source = new Uri(System.AppDomain.CurrentDomain.BaseDirectory + "mp3\\" + _mp3List[(int)handlocation]);
+                    medMain.Play();
+                    isplaying = true;
+                    return;
+                }
+
+                //int i = new Random().Next(0,29);
+                //medMain.Source = new Uri(System.AppDomain.CurrentDomain.BaseDirectory + "mp3\\"  + _mp3List[);
+                //medMain.Play();
+
+                //isplaying = true;
             }
         }
 
         private void medMain_MediaEnded(object sender, RoutedEventArgs e)
         {
+            medMain.Position = TimeSpan.Zero;
+            medMain.Play();
             isplaying = false;
         }
     }

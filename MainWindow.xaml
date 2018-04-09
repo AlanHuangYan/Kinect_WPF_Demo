@@ -127,7 +127,23 @@
 
                     <TextBlock Name="leftCenterY_angle" />
                     <TextBlock Name="rightCenterY_angle" />
+                    <TextBlock Name="mp3Number" />
+                    <TextBlock Name="mp3Status" />
                     <MediaElement Name="medMain"  MediaEnded="medMain_MediaEnded" LoadedBehavior="Manual" UnloadedBehavior="Manual" />
+                    <MediaElement  Name="medBackground" >
+                        <MediaElement.Triggers>
+                            <EventTrigger RoutedEvent="MediaElement.Loaded">
+                                <EventTrigger.Actions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <MediaTimeline Source="" Storyboard.TargetName="medBackground"  
+                 RepeatBehavior="Forever" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger.Actions>
+                            </EventTrigger>
+                        </MediaElement.Triggers>
+                    </MediaElement>
                 </StackPanel>
             </StackPanel>
 
