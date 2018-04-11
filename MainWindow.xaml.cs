@@ -59,12 +59,17 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// <summary>
         /// Width of output drawing
         /// </summary>
-        private const float RenderWidth = 640.0f;
+        private int skeletonNumber = 1;
+
+        /// <summary>
+        /// Width of output drawing
+        /// </summary>
+        private const float RenderWidth = 1366.0f;
 
         /// <summary>
         /// Height of our output drawing
         /// </summary>
-        private const float RenderHeight = 480.0f;
+        private const float RenderHeight = 768.0f;
 
         /// <summary>
         /// Thickness of drawn joint lines
@@ -480,6 +485,8 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 mess = "T型姿势";
                 //KinectTimer.Start();
                 isKinectControl = true;
+                Console.WriteLine("TTTTTTTTTTT");
+                skeletonNumber = Math.Max(skeletonNumber, 5);
                 //(this.FindName("gridMainMenu") as Grid).Visibility = Visibility.Collapsed;
                 //(this.FindName("gridPose") as Grid).Visibility = Visibility.Visible;
                 //(this.FindName("gridTuch") as Grid).Visibility = Visibility.Collapsed;
@@ -494,15 +501,19 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 if (leftAndRightY > 200 && handLeft.Y < handRight.Y && isOK)
             {
                 mess = "左手举起，右手放下";
+                skeletonNumber = Math.Max(skeletonNumber, 7);
+                Console.WriteLine("ZUOQIYOUXIA");
                 //(this.FindName("gridMainMenu") as Grid).Visibility = Visibility.Collapsed;
                 //(this.FindName("gridPose") as Grid).Visibility = Visibility.Collapsed;
                 //(this.FindName("gridTuch") as Grid).Visibility = Visibility.Visible;
             }
             else
                     //右手举起，左手放下
-                    if (leftAndRightY > 200 && handLeft.Y > handRight.Y && isOK)
+                if (leftAndRightY > 200 && handLeft.Y > handRight.Y && isOK)
             {
                 mess = "右手举起，左手放下";
+                skeletonNumber = Math.Max(skeletonNumber, 9);
+                Console.WriteLine("YOUQIZUOXIA");
 
             }
             else
@@ -511,7 +522,10 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             {
                 mess = "双手交叉";
                 //KinectTimer.Stop();
+                Console.WriteLine("XXXXXXXXXXXXX");
+                skeletonNumber = 1;
                 isKinectControl = false;
+
                 //(this.FindName("gridMainMenu") as Grid).Visibility = Visibility.Visible;
                 //(this.FindName("gridPose") as Grid).Visibility = Visibility.Collapsed;
                 //(this.FindName("gridTuch") as Grid).Visibility = Visibility.Collapsed;
@@ -527,6 +541,8 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                             if ((angelRight >= 350 && angelRight <= 380) && (angelLeft >= 350 && angelLeft <= 380))
             {
                 mess = "双手高举";
+                skeletonNumber = Math.Max(skeletonNumber, 3);
+                Console.WriteLine("GAOJU");
             }
             #endregion
 
@@ -898,8 +914,17 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
 
                         if (skeletonPrimary.TrackingState == SkeletonTrackingState.Tracked)
                         {
-                            this.DrawBonesAndJoints(skeletonPrimary, dc);
+                            for (int i = 0; i < skeletonNumber; i++)
+                            {
+                                int xShift = (int) (RenderWidth / (skeletonNumber * 2) + i * (RenderWidth / skeletonNumber) - RenderWidth / 2);
+                                Console.WriteLine("i" + i.ToString());
+                                Console.WriteLine(xShift.ToString());
+                                this.DrawBonesAndJoints(skeletonPrimary, dc, xShift, 0);
+
+                            }
                         }
+
+                        
                         else if (skeletonPrimary.TrackingState == SkeletonTrackingState.PositionOnly)
                         {
                             dc.DrawEllipse(
@@ -922,36 +947,36 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// </summary>
         /// <param name="skeleton">skeleton to draw</param>
         /// <param name="drawingContext">drawing context to draw to</param>
-        private void DrawBonesAndJoints(Skeleton skeleton, DrawingContext drawingContext)
+        private void DrawBonesAndJoints(Skeleton skeleton, DrawingContext drawingContext, int xShift, int yShift)
         {
             // Render Torso
-            this.DrawBone(skeleton, drawingContext, JointType.Head, JointType.ShoulderCenter);
-            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderRight);
-            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.Spine);
-            this.DrawBone(skeleton, drawingContext, JointType.Spine, JointType.HipCenter);
-            this.DrawBone(skeleton, drawingContext, JointType.HipCenter, JointType.HipLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.HipCenter, JointType.HipRight);
+            this.DrawBone(skeleton, drawingContext, JointType.Head, JointType.ShoulderCenter, xShift, yShift);
+            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderLeft, xShift, yShift);
+            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderRight, xShift, yShift);
+            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.Spine, xShift, yShift);
+            this.DrawBone(skeleton, drawingContext, JointType.Spine, JointType.HipCenter, xShift, yShift);
+            this.DrawBone(skeleton, drawingContext, JointType.HipCenter, JointType.HipLeft, xShift, yShift);
+            this.DrawBone(skeleton, drawingContext, JointType.HipCenter, JointType.HipRight, xShift, yShift);
 
             // Left Arm
-            this.DrawBone(skeleton, drawingContext, JointType.ShoulderLeft, JointType.ElbowLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.ElbowLeft, JointType.WristLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.WristLeft, JointType.HandLeft);
+            this.DrawBone(skeleton, drawingContext, JointType.ShoulderLeft, JointType.ElbowLeft, xShift, yShift);
+            this.DrawBone(skeleton, drawingContext, JointType.ElbowLeft, JointType.WristLeft, xShift, yShift);
+            this.DrawBone(skeleton, drawingContext, JointType.WristLeft, JointType.HandLeft, xShift, yShift);
 
             // Right Arm
-            this.DrawBone(skeleton, drawingContext, JointType.ShoulderRight, JointType.ElbowRight);
-            this.DrawBone(skeleton, drawingContext, JointType.ElbowRight, JointType.WristRight);
-            this.DrawBone(skeleton, drawingContext, JointType.WristRight, JointType.HandRight);
+            this.DrawBone(skeleton, drawingContext, JointType.ShoulderRight, JointType.ElbowRight, xShift, yShift);
+            this.DrawBone(skeleton, drawingContext, JointType.ElbowRight, JointType.WristRight, xShift, yShift);
+            this.DrawBone(skeleton, drawingContext, JointType.WristRight, JointType.HandRight, xShift, yShift);
 
             // Left Leg
-            this.DrawBone(skeleton, drawingContext, JointType.HipLeft, JointType.KneeLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.KneeLeft, JointType.AnkleLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.AnkleLeft, JointType.FootLeft);
+            this.DrawBone(skeleton, drawingContext, JointType.HipLeft, JointType.KneeLeft, xShift, yShift);
+            this.DrawBone(skeleton, drawingContext, JointType.KneeLeft, JointType.AnkleLeft, xShift, yShift);
+            this.DrawBone(skeleton, drawingContext, JointType.AnkleLeft, JointType.FootLeft, xShift, yShift);
 
             // Right Leg
-            this.DrawBone(skeleton, drawingContext, JointType.HipRight, JointType.KneeRight);
-            this.DrawBone(skeleton, drawingContext, JointType.KneeRight, JointType.AnkleRight);
-            this.DrawBone(skeleton, drawingContext, JointType.AnkleRight, JointType.FootRight);
+            this.DrawBone(skeleton, drawingContext, JointType.HipRight, JointType.KneeRight, xShift, yShift);
+            this.DrawBone(skeleton, drawingContext, JointType.KneeRight, JointType.AnkleRight, xShift, yShift);
+            this.DrawBone(skeleton, drawingContext, JointType.AnkleRight, JointType.FootRight, xShift, yShift);
 
             // Render Joints
             foreach (Joint joint in skeleton.Joints)
@@ -972,7 +997,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                     // 这个方法算点的位置. 
                     var point = this.SkeletonPointToScreen(joint.Position);
                     // 画点
-                    drawingContext.DrawEllipse(drawBrush, null, point, JointThickness, JointThickness);
+                    drawingContext.DrawEllipse(drawBrush, null, new Point(point.X + xShift, point.Y + yShift), JointThickness, JointThickness);
 
                     
                     //drawingContext.DrawEllipse(drawBrush, null, new Point(point.X + 20, point.Y + 20), JointThickness, JointThickness);
@@ -1000,7 +1025,8 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// <param name="drawingContext">drawing context to draw to</param>
         /// <param name="jointType0">joint to start drawing from</param>
         /// <param name="jointType1">joint to end drawing at</param>
-        private void DrawBone(Skeleton skeleton, DrawingContext drawingContext, JointType jointType0, JointType jointType1)
+        private void DrawBone(Skeleton skeleton, DrawingContext drawingContext, JointType jointType0,
+            JointType jointType1, int xShift, int yShift)
         {
             Joint joint0 = skeleton.Joints[jointType0];
             Joint joint1 = skeleton.Joints[jointType1];
@@ -1026,7 +1052,10 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 drawPen = this.trackedBonePen;
             }
 
-            drawingContext.DrawLine(drawPen, this.SkeletonPointToScreen(joint0.Position), this.SkeletonPointToScreen(joint1.Position));
+            var point0 = this.SkeletonPointToScreen(joint0.Position);
+            var point1 = this.SkeletonPointToScreen(joint1.Position);
+            drawingContext.DrawLine(drawPen, new Point(point0.X + xShift, point0.Y + yShift),
+                new Point(point1.X + xShift, point1.Y + yShift));
 
         }
 
