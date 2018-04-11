@@ -863,6 +863,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         {
             Skeleton[] skeletons = new Skeleton[0];
 
+            Skeleton skeletonPrimary = null;
             using (SkeletonFrame skeletonFrame = e.OpenSkeletonFrame())
             {
                 if (skeletonFrame != null)
@@ -872,11 +873,11 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                     skeletonFrame.CopySkeletonDataTo(skeletons);
 
                     //获取第一位置骨架
-                    Skeleton skeleton = GetPrimarySkeleton(skeletons);
-                    if (skeleton != null)
+                    skeletonPrimary = GetPrimarySkeleton(skeletons);
+                    if (skeletonPrimary != null)
                     {
 
-                        ProcessPosePerForming2(skeleton);
+                        ProcessPosePerForming2(skeletonPrimary);
 
                     }
 
@@ -888,26 +889,27 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 // Draw a transparent background to set the render size
                 dc.DrawRectangle(Brushes.Transparent, null, new Rect(0.0, 0.0, RenderWidth, RenderHeight));
 
-                if (skeletons.Length != 0)
+                if (skeletons.Length != 0 && skeletonPrimary != null)
                 {
-                    foreach (Skeleton skel in skeletons)
-                    {
-                        RenderClippedEdges(skel, dc);
+                    //foreach (Skeleton skel in skeletons)
+                    //{
+                        
+                        RenderClippedEdges(skeletonPrimary, dc);
 
-                        if (skel.TrackingState == SkeletonTrackingState.Tracked)
+                        if (skeletonPrimary.TrackingState == SkeletonTrackingState.Tracked)
                         {
-                            this.DrawBonesAndJoints(skel, dc);
+                            this.DrawBonesAndJoints(skeletonPrimary, dc);
                         }
-                        else if (skel.TrackingState == SkeletonTrackingState.PositionOnly)
+                        else if (skeletonPrimary.TrackingState == SkeletonTrackingState.PositionOnly)
                         {
                             dc.DrawEllipse(
                             this.centerPointBrush,
                             null,
-                            this.SkeletonPointToScreen(skel.Position),
+                            this.SkeletonPointToScreen(skeletonPrimary.Position),
                             BodyCenterThickness,
                             BodyCenterThickness);
                         }
-                    }
+                    //}
                 }
 
                 // prevent drawing outside of our render area
@@ -967,9 +969,12 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
 
                 if (drawBrush != null)
                 {
+                    // 这个方法算点的位置. 
                     var point = this.SkeletonPointToScreen(joint.Position);
+                    // 画点
                     drawingContext.DrawEllipse(drawBrush, null, point, JointThickness, JointThickness);
 
+                    
                     //drawingContext.DrawEllipse(drawBrush, null, new Point(point.X + 20, point.Y + 20), JointThickness, JointThickness);
                 }
             }
