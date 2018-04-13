@@ -47,11 +47,11 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                     //设置平滑参数
                     TransformSmoothParameters smoothParameters = new TransformSmoothParameters();
                     // 设置处理骨骼数据帧时的平滑量，接受一个0-1的浮点值，值越大，平滑的越多。0表示不进行平滑。
-                    smoothParameters.Smoothing = .5f;
+                    smoothParameters.Smoothing = 1f;
                     // 接受一个从0-1的浮点型，值越小，修正越多
-                    smoothParameters.Correction = .9f;
+                    smoothParameters.Correction = 0.1f;
                     // 抖动半径，单位为m，如果关节点“抖动”超过了设置的这个半径，将会被纠正到这个半径之内
-                    smoothParameters.JitterRadius = 0.05f;
+                    smoothParameters.JitterRadius = 0.1f;
                     // 用来和抖动半径一起来设置抖动半径的最大边界，任何超过这一半径的点都不会认为是抖动产生的，而被认定为是一个新的点。该属性为浮点型，单位为米
                     smoothParameters.MaxDeviationRadius = 0.1f;
                     kinectDriver.SkeletonStream.Enable(smoothParameters);
@@ -60,7 +60,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                     kinectDriver.Start();
                 }
                 KinectTimer = new Timer();
-                KinectTimer.Interval = 4000;
+                KinectTimer.Interval = 2000;
                 KinectTimer.Elapsed += KinectTimer_Elapsed;
 
             }

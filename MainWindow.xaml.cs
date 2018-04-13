@@ -64,12 +64,12 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// <summary>
         /// Width of output drawing
         /// </summary>
-        private const float RenderWidth = 1366.0f;
+        private const float RenderWidth = 1920.0f;
 
         /// <summary>
         /// Height of our output drawing
         /// </summary>
-        private const float RenderHeight = 768.0f;
+        private const float RenderHeight = 1080.0f;
 
         /// <summary>
         /// Thickness of drawn joint lines
@@ -94,22 +94,22 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// <summary>
         /// Brush used for drawing joints that are currently tracked
         /// </summary>
-        private readonly Brush trackedJointBrush = new SolidColorBrush(Color.FromArgb(255, 68, 192, 68));
+        private readonly Brush trackedJointBrush = Brushes.Red;
 
         /// <summary>
         /// Brush used for drawing joints that are currently inferred
         /// </summary>        
-        private readonly Brush inferredJointBrush = Brushes.Yellow;
+        private readonly Brush inferredJointBrush = Brushes.Red;
 
         /// <summary>
         /// Pen used for drawing bones that are currently tracked
         /// </summary>
-        private readonly Pen trackedBonePen = new Pen(Brushes.Green, 6);
+        private readonly Pen trackedBonePen = new Pen(Brushes.Red, 8);
 
         /// <summary>
         /// Pen used for drawing bones that are currently inferred
         /// </summary>        
-        private readonly Pen inferredBonePen = new Pen(Brushes.Gray, 1);
+        private readonly Pen inferredBonePen = new Pen(Brushes.Red, 8);
 
         /// <summary>
         /// Active Kinect sensor
@@ -518,7 +518,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             }
             else
                         //双手交叉
-                        if ((handRight.X - handLeft.X) < 0 && handLeft.Y < 150 && handRight.Y < 150 && isOK) //handLeft.Y<spine.Y&&handRight.Y<spine.Y
+                        if ((handRight.X - handLeft.X) < 0 && isOK) //handLeft.Y<spine.Y&&handRight.Y<spine.Y
             {
                 mess = "双手交叉";
                 //KinectTimer.Stop();
@@ -903,23 +903,25 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             using (DrawingContext dc = this.drawingGroup.Open())
             {
                 // Draw a transparent background to set the render size
-                dc.DrawRectangle(Brushes.Transparent, null, new Rect(0.0, 0.0, RenderWidth, RenderHeight));
+                dc.DrawRectangle(Brushes.Black, null, new Rect(0.0, 0.0, RenderWidth, RenderHeight));
 
                 if (skeletons.Length != 0 && skeletonPrimary != null)
                 {
                     //foreach (Skeleton skel in skeletons)
                     //{
                         
-                        RenderClippedEdges(skeletonPrimary, dc);
+                        // RenderClippedEdges(skeletonPrimary, dc);
 
                         if (skeletonPrimary.TrackingState == SkeletonTrackingState.Tracked)
                         {
                             for (int i = 0; i < skeletonNumber; i++)
                             {
-                                int xShift = (int) (RenderWidth / (skeletonNumber * 2) + i * (RenderWidth / skeletonNumber) - RenderWidth / 2);
+                                int xShiftRaw = (int)(RenderWidth / (skeletonNumber * 2) + i * (RenderWidth / skeletonNumber) - RenderWidth / 2);
+                                int xShift = (int) (xShiftRaw + RenderWidth / 3);
+                                int yShift = (int) (-Math.Abs(xShiftRaw * 0.3) + RenderHeight / 3);
                                 Console.WriteLine("i" + i.ToString());
                                 Console.WriteLine(xShift.ToString());
-                                this.DrawBonesAndJoints(skeletonPrimary, dc, xShift, 0);
+                                this.DrawBonesAndJoints(skeletonPrimary, dc, xShift, yShift);
 
                             }
                         }
@@ -977,6 +979,26 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             this.DrawBone(skeleton, drawingContext, JointType.HipRight, JointType.KneeRight, xShift, yShift);
             this.DrawBone(skeleton, drawingContext, JointType.KneeRight, JointType.AnkleRight, xShift, yShift);
             this.DrawBone(skeleton, drawingContext, JointType.AnkleRight, JointType.FootRight, xShift, yShift);
+
+            // Head
+            Joint head = skeleton.Joints[JointType.Head];
+            Brush drawBrushHead = null;
+            if (head.TrackingState == JointTrackingState.Tracked)
+            {
+                drawBrushHead = this.trackedJointBrush;
+            }
+            else if (head.TrackingState == JointTrackingState.Inferred)
+            {
+                drawBrushHead = this.inferredJointBrush;
+            }
+
+            if (drawBrushHead != null)
+            {
+                // 这个方法算点的位置. 
+                var pointHead = this.SkeletonPointToScreen(head.Position);
+                // 画点
+                drawingContext.DrawEllipse(drawBrushHead, null, new Point(pointHead.X + xShift, pointHead.Y + yShift), 40, 40);
+            }
 
             // Render Joints
             foreach (Joint joint in skeleton.Joints)
